@@ -104,7 +104,9 @@ def describe_picture(apikey, url):
                     result = response.content
         else:
             print("Error code: %d" % (response.status_code))
-            raise Exception(response.json())
+            print(response.json())
+            retries += 1
+            time.sleep(2)
 
         break
     return result
