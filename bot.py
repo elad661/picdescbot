@@ -47,12 +47,15 @@ def get_random_picture():
 
     # We got a picture, now let's verify we can use it.
     if word_filter.blacklisted(page['title']):  # Check file name for bad words
+        print('badword ' + page['title'])
         return None
     # Check picture title for bad words
     if word_filter.blacklisted(extra_metadata['ObjectName']['value']):
+        print('badword ' + extra_metadata['ObjectName']['value'])
         return None
     # Check restrictions for more bad words
     if word_filter.blacklisted(extra_metadata['Restrictions']['value']):
+        print('badword ' + extra_metadata['ObjectName']['value'])
         return None
 
     # Now check that the file is useable
@@ -127,7 +130,11 @@ def get_picture_and_description(apikey, max_retries=20):
             if not description['adult']['isAdultContent']:  # no nudity and such
                 if len(description['description']['captions']) > 0:
                     caption = description['description']['captions'][0]['text']
-                    return caption, url
+                    if not word_filter.blacklisted(caption):
+                        return caption, url
+                    else:
+                        print("caption discarded due to word filter: " +
+                              caption)
         retries += 1
         print("Not good, retrying...")
         pic = None
@@ -153,6 +160,7 @@ def download_picture(url):
             retries += 1
             time.sleep(1)
     raise Exception("Maximum retries exceeded when downloading a picture")
+
 
 def main():
     if sys.version_info.major < 3:
@@ -208,7 +216,7 @@ def main():
     twitter = tweepy.API(auth)
 
     if (not config.has_section('mscognitive') or not
-        config.has_option('mscognitive', 'api_key')):
+            config.has_option('mscognitive', 'api_key')):
         apikey = input("Please enter your Microsoft Computer Vision API Key:")
         if not config.has_section('mscognitive'):
             config.add_section('mscognitive')
@@ -224,6 +232,7 @@ def main():
 
     # Download picture
     picture = download_picture(picurl)
+    print(description, picurl)
     status = twitter.update_with_media(filename=picurl.split('/')[-1],
                                     status=description,
                                     file=picture)
