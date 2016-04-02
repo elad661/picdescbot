@@ -174,6 +174,7 @@ def main():
     parser = argparse.ArgumentParser(description='Tweets pictures from wikipedia')
     parser.add_argument('config', metavar='config', nargs='?', type=str,
                         default=None, help='Path to config file')
+    parser.add_argument('--manual', action="store_true")
     args = parser.parse_args()
     config_file = "config.ini"
     if args.config is not None:
@@ -230,14 +231,26 @@ def main():
 
     # end boring setup stuff
 
-    description, picurl = get_picture_and_description(apikey)
+    tweet = False
+    while not tweet:
+        description, picurl = get_picture_and_description(apikey)
+        if args.manual:
+            action = None
+            print(picurl)
+            print(description)
+            while action not in ['y', 'n']:
+                action = input("Tweet this? [y/n]: ")
+            if action == "y":
+                tweet = True
+        else:
+            tweet = True
 
     # Download picture
     picture = download_picture(picurl)
     print(description, picurl)
     status = twitter.update_with_media(filename=picurl.split('/')[-1],
-                                    status=description,
-                                    file=picture)
+                                       status=description,
+                                       file=picture)
     print("Tweeted: {0} ({1})".format(status.id, description))
 
 if __name__ == "__main__":
