@@ -137,6 +137,12 @@ def get_picture_and_description(apikey, max_retries=20):
                     else:
                         print("caption discarded due to word filter: " +
                               caption)
+                else:
+                    print("No caption.")
+            else:
+                print("Adult content. Discarded.")
+                print(url)
+                print(description)
         retries += 1
         print("Not good, retrying...")
         pic = None
