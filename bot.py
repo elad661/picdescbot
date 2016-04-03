@@ -88,7 +88,7 @@ def describe_picture(apikey, url):
         if response.status_code == 429:
             print ("Message: %s" % (response.json()))
             if retries <= 20:
-                time.sleep(1)
+                time.sleep(2)
                 retries += 1
             else:
                 print('Error: failed after retrying!')
@@ -106,7 +106,7 @@ def describe_picture(apikey, url):
             print("Error code: %d" % (response.status_code))
             print(response.json())
             retries += 1
-            time.sleep(2)
+            time.sleep(5 + retries)
 
     return result
 
@@ -145,7 +145,7 @@ def get_picture_and_description(apikey, max_retries=20):
         retries += 1
         print("Not good, retrying...")
         pic = None
-        time.sleep(2)  # sleep to be polite to the API servers
+        time.sleep(3)  # sleep to be polite to the API servers
 
     raise Exception("Maximum retries exceeded, no good picture")
 
