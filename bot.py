@@ -82,7 +82,7 @@ def describe_picture(apikey, url):
     result = None
     retries = 0
 
-    while retries < 10:
+    while retries < 10 and not result:
         response = requests.post(CVAPI, json=json, params=params,
                                  headers=headers)
         if response.status_code == 429:
@@ -108,7 +108,6 @@ def describe_picture(apikey, url):
             retries += 1
             time.sleep(2)
 
-        break
     return result
 
 
