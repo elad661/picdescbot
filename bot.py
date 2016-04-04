@@ -25,6 +25,7 @@ HEADERS = {"User-Agent":  "picdescbot, http://github.com/elad661/picdescbot"}
 supported_formats = re.compile('\.(png|jpe?g|gif)$', re.I)
 word_filter = Wordfilter()
 word_filter.add_words(['nazi'])  # I really don't want the bot to show this kind of imagery!
+category_blacklist = ['september 11']  # Blacklist some categories, just in case
 
 
 def get_random_picture():
@@ -34,7 +35,7 @@ def get_random_picture():
     params = {"action": "query",
               "generator": "random",
               "grnnamespace": "6",
-              "prop": "imageinfo",
+              "prop": "imageinfo|categories",
               "iiprop": "url|size|extmetadata|mediatype",
               "iiurlheight": "1080",
               "format": "json"}
@@ -57,6 +58,12 @@ def get_random_picture():
     if word_filter.blacklisted(extra_metadata['Restrictions']['value']):
         print('badword ' + extra_metadata['ObjectName']['value'])
         return None
+
+    for category in page['categories']:
+        for blacklisted_category in category_blacklist:
+            if blacklisted_category in category['title'].lower():
+                print('discarded, category blacklist: ' + category['name'])
+                return None
 
     # Now check that the file is useable
     if imageinfo['mediatype'] != "BITMAP":
