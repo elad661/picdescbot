@@ -82,12 +82,12 @@ def describe_picture(apikey, url):
     result = None
     retries = 0
 
-    while retries < 10 and not result:
+    while retries < 15 and not result:
         response = requests.post(CVAPI, json=json, params=params,
                                  headers=headers)
         if response.status_code == 429:
             print ("Message: %s" % (response.json()))
-            if retries <= 20:
+            if retries < 15:
                 time.sleep(2)
                 retries += 1
             else:
@@ -104,9 +104,10 @@ def describe_picture(apikey, url):
                     result = response.content
         else:
             print("Error code: %d" % (response.status_code))
+            print("url: %s" % url)
             print(response.json())
             retries += 1
-            time.sleep(5 + retries)
+            time.sleep(10 + retries*3)
 
     return result
 
@@ -137,7 +138,7 @@ def get_picture_and_description(apikey, max_retries=20):
                         print("caption discarded due to word filter: " +
                               caption)
                 else:
-                    print("No caption.")
+                    print("No caption for url: {0}".format(url))
             else:
                 print("Adult content. Discarded.")
                 print(url)
