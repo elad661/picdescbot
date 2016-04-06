@@ -261,9 +261,19 @@ def main():
     # Download picture
     picture = download_picture(picurl)
     print(description, picurl)
-    status = twitter.update_with_media(filename=picurl.split('/')[-1],
-                                       status=description,
-                                       file=picture)
+    retries = 0
+    status = None
+    while retries < 3 and not status:
+        if retries > 0:
+            print('retrying...')
+        try:
+            status = twitter.update_with_media(filename=picurl.split('/')[-1],
+                                               status=description,
+                                               file=picture)
+        except tweepy.TweepError as e:
+            print("Error when sending tweet: " + e)
+            retries += 1
+            time.sleep(5)
     print("Tweeted: {0} ({1})".format(status.id, description))
 
 if __name__ == "__main__":
