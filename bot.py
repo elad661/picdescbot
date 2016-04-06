@@ -271,7 +271,7 @@ def main():
                                                status=description,
                                                file=picture)
         except tweepy.TweepError as e:
-            print("Error when sending tweet: " + e)
+            print("Error when sending tweet: %s" % e.message)
             retries += 1
             time.sleep(5)
     print("Tweeted: {0} ({1})".format(status.id, description))
