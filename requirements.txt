@@ -1,4 +1,4 @@
 tweepy
 requests
 wordfilter
-tumblpy
+python-tumblpy
