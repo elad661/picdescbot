@@ -19,8 +19,12 @@ HEADERS = {"User-Agent":  "picdescbot, http://github.com/elad661/picdescbot"}
 
 supported_formats = re.compile('\.(png|jpe?g|gif)$', re.I)
 word_filter = Wordfilter()
-word_filter.add_words(['nazi'])  # I really don't want the bot to show this kind of imagery!
-category_blacklist = ['september 11']  # Blacklist some categories, just in case
+
+# I really don't want the bot to show this kind of imagery!
+word_filter.add_words(['nazi', 'hitler'])
+
+# Blacklist some categories, just in case
+category_blacklist = ['september 11']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
