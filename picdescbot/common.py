@@ -22,6 +22,20 @@ word_filter = Wordfilter()
 word_filter.add_words(['nazi'])  # I really don't want the bot to show this kind of imagery!
 category_blacklist = ['september 11']  # Blacklist some categories, just in case
 
+# To prevent accidental transphobic jauxtapositions which can occur when
+# the detected gender doesn't match the actual picture.
+startswith_blacklist = ['a man', 'a woman']
+
+
+def blacklisted(phrase):
+    if word_filter.blacklisted(phrase):
+        return True
+    phrase = phrase.lower()
+    for item in startswith_blacklist:
+        if phrase.startswith(item):
+            return True
+    return False
+
 
 def get_random_picture():
     """Get a random picture from Wikimedia Commons.
@@ -140,11 +154,11 @@ class CVAPIClient(object):
                 if not result['adult']['isAdultContent']:  # no nudity and such
                     if len(description['captions']) > 0:
                         caption = description['captions'][0]['text']
-                        if not word_filter.blacklisted(caption):
+                        if not blacklisted(caption):
                             return Result(caption, description['tags'], url,
                                           pic['descriptionshorturl'])
                         else:
-                            print("caption discarded due to word filter: " +
+                            print("caption discarded due to blacklist: " +
                                   caption)
                     else:
                         print("No caption for url: {0}".format(url))
