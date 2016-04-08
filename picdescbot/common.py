@@ -22,19 +22,27 @@ word_filter = Wordfilter()
 word_filter.add_words(['nazi'])  # I really don't want the bot to show this kind of imagery!
 category_blacklist = ['september 11']  # Blacklist some categories, just in case
 
-# To prevent accidental transphobic jauxtapositions which can occur when
-# the detected gender doesn't match the actual picture.
-startswith_blacklist = ['a man', 'a woman']
+# Gender neutralization helps prevent accidental transphobic juxtapositions
+# which can occur when CVAPI uses gendered words in the description, but their
+# gender detection is wrong. Computers shouldn't try to detect gender, and
+# always be neautral. You can't know someone's gender just by how they look!
+gendered_words = {'woman': 'person',
+                  'man': 'person',
+                  'women': 'people',
+                  'men': 'people'}
 
 
-def blacklisted(phrase):
-    if word_filter.blacklisted(phrase):
-        return True
-    phrase = phrase.lower()
-    for item in startswith_blacklist:
-        if phrase.startswith(item):
-            return True
-    return False
+def gender_neutralize(phrase):
+    "Replace gendered words in the phrase with neutral ones"
+    neutralized = []
+    for word in phrase.lower().split():
+        if word in gendered_words:
+            word = gendered_words[word]
+        neutralized.append(word)
+    neutralized = ' '.join(neutralized)
+    if neutralized != phrase:
+        print('Gender neutralized: "{0}" => "{1}"'.format(phrase, neutralized))
+    return neutralized
 
 
 def get_random_picture():
@@ -154,7 +162,8 @@ class CVAPIClient(object):
                 if not result['adult']['isAdultContent']:  # no nudity and such
                     if len(description['captions']) > 0:
                         caption = description['captions'][0]['text']
-                        if not blacklisted(caption):
+                        caption = gender_neutralize(caption)
+                        if not word_filter.blacklisted(caption):
                             return Result(caption, description['tags'], url,
                                           pic['descriptionshorturl'])
                         else:
