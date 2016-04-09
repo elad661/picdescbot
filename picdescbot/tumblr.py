@@ -16,6 +16,18 @@ TEMPLATE = "<h2><b>{description}</b></h2>" + \
            "<p><i>this post is 100% computer-generated, including tags</i></p>"
 DEFAULT_TAGS = ['picdescbot', 'bot']
 
+# All kinds of tags that should be filtered from the bot's post
+tag_blacklist = {'woman', 'black', 'white', 'man', 'body', 'large', 'tall',
+                 'small', 'young', 'old', 'top'}
+
+
+def filter_tags(tags):
+    filtered = []
+    for tag in tags:
+        if tag not in tag_blacklist and not common.word_filter.blacklisted(tag):
+            filtered.append(tag)
+    return filtered
+
 
 class Client(object):
     name = "tumblr"
@@ -31,18 +43,7 @@ class Client(object):
         post_text = TEMPLATE.format(description=picture.caption,
                                     source=picture.source_url)
 
-        # People asked me to add tags to the posts, but blindly adding them
-        # is not good enough. I need to think of a way to use wordnik to filter
-        # common adjectives or something. I also need to decide if I really want
-        # to implement this request, because it might cause the bot's post
-        # to appear as spam for people who simply follow some tags.
-
-        # tag filtering:
-        # for tag in picture.tags:
-        #     if tag in tag_blacklist or common.word_filter.blacklisted(tag):
-        #         picture.tags.remove(tag)
-
-        tags = DEFAULT_TAGS  # + picture.tags
+        tags = DEFAULT_TAGS + filter_tags(picture.tags)
 
         params = {'caption': post_text,
                   'source': picture.url,
