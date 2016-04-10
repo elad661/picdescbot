@@ -13,7 +13,7 @@ TEMPLATE = "<h2><b>{description}</b></h2>" + \
            "<p><a href=\"https://picdescbot.tumblr.com/about\">" + \
            "about this bot</a>&nbsp;|&nbsp;" + \
            "<a href=\"{source}\">picture source</a></p>" + \
-           "<p><i>this post is 100% computer-generated, including tags</i></p>"
+           "<p><i>the text in this post is 100% computer-generated, including tags</i></p>"
 DEFAULT_TAGS = ['picdescbot', 'bot']
 
 # All kinds of tags that should be filtered from the bot's post
