@@ -86,9 +86,9 @@ def get_random_picture():
 
     for category in page['categories']:
         for blacklisted_category in category_blacklist:
-            if (blacklisted_category in category['title'].lower()
-               or word_filter.blacklisted(category['title'])):
-                print('discarded, category blacklist: ' + category['name'])
+            if (blacklisted_category in category['title'].lower() or
+               word_filter.blacklisted(category['title'])):
+                print('discarded, category blacklist: ' + category['title'])
                 return None
 
     # Now check that the file is useable
