@@ -23,8 +23,12 @@ word_filter = Wordfilter()
 # I really don't want the bot to show this kind of imagery!
 word_filter.add_words(['nazi', 'hitler'])
 
-# Blacklist some categories, just in case
-category_blacklist = ['september 11', 'hitler', 'nazi']
+# Blacklist some categories, just in case. These are matched on a substring
+# basis, against the page's categories and the titles of the wikipages using
+# the picture.
+category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
+                      'apartheid', 'racism', 'lynching', '1900s cartoons',
+                      'holocaust', 'stereotypes']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
@@ -60,7 +64,7 @@ def get_random_picture():
     params = {"action": "query",
               "generator": "random",
               "grnnamespace": "6",
-              "prop": "imageinfo|categories",
+              "prop": "imageinfo|categories|globalusage",
               "iiprop": "url|size|extmetadata|mediatype",
               "iiurlheight": "1080",
               "format": "json"}
@@ -99,6 +103,17 @@ def get_random_picture():
         if blacklisted_category in extra_categories:
             print('discarded, category blacklist: ' + blacklisted_category)
             return None
+
+    # if the picture is used in any wikipage with unwanted themes, we probably
+    # don't want to use it.
+    for wikipage in page['globalusage']:
+        if word_filter.blacklisted(wikipage['title'].lower()):
+            print('discarded, page usage: ' + wikipage['title'])
+            return None
+        for blacklisted_category in category_blacklist:
+            if blacklisted_category in wikipage['title']:  # substring matching
+                print('discarded, page usage: ' + wikipage['title'])
+                return None
 
     # Now check that the file is useable
     if imageinfo['mediatype'] != "BITMAP":
