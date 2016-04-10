@@ -24,7 +24,7 @@ word_filter = Wordfilter()
 word_filter.add_words(['nazi', 'hitler'])
 
 # Blacklist some categories, just in case
-category_blacklist = ['september 11']
+category_blacklist = ['september 11', 'hitler', 'nazi']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
@@ -86,8 +86,7 @@ def get_random_picture():
 
     for category in page['categories']:
         for blacklisted_category in category_blacklist:
-            if (blacklisted_category in category['title'].lower() or
-               word_filter.blacklisted(category['title'])):
+            if blacklisted_category in category['title'].lower():
                 print('discarded, category blacklist: ' + category['title'])
                 return None
 
