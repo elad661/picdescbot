@@ -33,7 +33,11 @@ category_blacklist = ['september 11']
 gendered_words = {'woman': 'person',
                   'man': 'person',
                   'women': 'people',
-                  'men': 'people'}
+                  'men': 'people',
+                  'boy': 'person',
+                  'girl': 'person',
+                  'boys': 'people',
+                  'girls': 'people'}
 
 
 def gender_neutralize(phrase):
@@ -82,7 +86,8 @@ def get_random_picture():
 
     for category in page['categories']:
         for blacklisted_category in category_blacklist:
-            if blacklisted_category in category['title'].lower():
+            if (blacklisted_category in category['title'].lower()
+               or word_filter.blacklisted(category['title'])):
                 print('discarded, category blacklist: ' + category['name'])
                 return None
 

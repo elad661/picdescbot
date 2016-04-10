@@ -18,7 +18,7 @@ DEFAULT_TAGS = ['picdescbot', 'bot']
 
 # All kinds of tags that should be filtered from the bot's post
 tag_blacklist = {'woman', 'black', 'white', 'man', 'body', 'large', 'tall',
-                 'small', 'young', 'old', 'top'}
+                 'small', 'young', 'old', 'top', 'boy', 'girl'}
 
 
 def filter_tags(tags):
