@@ -84,11 +84,21 @@ def get_random_picture():
         print('badword ' + extra_metadata['ObjectName']['value'])
         return None
 
-    for category in page['categories']:
-        for blacklisted_category in category_blacklist:
+    # The mediawiki API is awful, there's another list of categories which
+    # is not the same as the one requested by asking for "categories".
+    # Fortunately it's still in the API response, under extmetadata.
+
+    extra_categories = extra_metadata['Categories']['value'].lower()
+
+    for blacklisted_category in category_blacklist:
+        for category in page['categories']:
             if blacklisted_category in category['title'].lower():
                 print('discarded, category blacklist: ' + category['title'])
                 return None
+
+        if blacklisted_category in extra_categories:
+            print('discarded, category blacklist: ' + blacklisted_category)
+            return None
 
     # Now check that the file is useable
     if imageinfo['mediatype'] != "BITMAP":
