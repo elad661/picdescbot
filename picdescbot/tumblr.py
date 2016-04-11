@@ -4,6 +4,7 @@
 # Copyright (C) 2016 Elad Alfassa <elad@fedoraproject.org>
 
 from tumblpy import Tumblpy
+import tumblpy.exceptions
 from . import common
 
 DEFAULT_PARAMS = {'type': 'photo', 'state': 'queue',
@@ -50,6 +51,19 @@ class Client(object):
                   'tags': ','.join(tags)}
         params.update(DEFAULT_PARAMS)
 
-        post = self.client.post("post", blog_url=self.blog_id,
-                                params=params)
+        retries = 0
+        post = None
+        while retries < 3 and post is None:
+            if retries > 0:
+                print('retrying...')
+            try:
+                post = self.client.post("post", blog_url=self.blog_id,
+                                        params=params)
+            except tumblpy.exceptions.TumblpyError as e:
+                print("Error when sending tumblr post: %s" % e)
+                retries += 1
+                if retries >= 3:
+                    raise
+                else:
+                    time.sleep(5)
         return post['id']
