@@ -28,7 +28,7 @@ word_filter.add_words(['nazi', 'hitler'])
 # the picture.
 category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
                       'apartheid', 'racism', 'lynching', '1900s cartoons',
-                      'holocaust', 'stereotypes']
+                      'holocaust', 'stereotypes', 'flags']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
