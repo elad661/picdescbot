@@ -5,6 +5,7 @@
 
 from tumblpy import Tumblpy
 import tumblpy.exceptions
+import time
 from . import common
 
 DEFAULT_PARAMS = {'type': 'photo', 'state': 'queue',
