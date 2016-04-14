@@ -57,6 +57,16 @@ def gender_neutralize(phrase):
     return neutralized
 
 
+tags_blacklist = {'text', 'screenshot', 'military uniform'}
+
+
+def tag_blacklisted(tags):
+    for tag in tags:
+        if tag in tags_blacklist:
+            return True
+    return False
+
+
 def get_random_picture():
     """Get a random picture from Wikimedia Commons.
     Returns None when the result is bad"""
@@ -169,7 +179,9 @@ class CVAPIClient(object):
                 print("url: %s" % url)
                 print(response.json())
                 retries += 1
-                time.sleep(10 + retries*3)
+                sleep = 20 + retries*4
+                print("attempt: {0}, sleeping for {1}".format(retries, sleep))
+                time.sleep(sleep)
 
         return result
 
@@ -197,8 +209,14 @@ class CVAPIClient(object):
                         caption = description['captions'][0]['text']
                         caption = gender_neutralize(caption)
                         if not word_filter.blacklisted(caption):
-                            return Result(caption, description['tags'], url,
-                                          pic['descriptionshorturl'])
+                            if not tag_blacklisted(description['tags']):
+                                return Result(caption,
+                                              description['tags'], url,
+                                              pic['descriptionshorturl'])
+                            else:
+                                print("discarded: tag blacklist: %s (%s)" %
+                                      (url, caption))
+                                print('tags: %s' % description['tags'])
                         else:
                             print("caption discarded due to blacklist: " +
                                   caption)
