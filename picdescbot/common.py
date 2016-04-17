@@ -27,8 +27,9 @@ word_filter.add_words(['nazi', 'hitler'])
 # basis, against the page's categories and the titles of the wikipages using
 # the picture.
 category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
-                      'apartheid', 'racism', 'lynching', '1900s cartoons',
-                      'holocaust', 'stereotypes', 'flags']
+                      'apartheid', 'racism', 'lynching', 'cartoons',
+                      'holocaust', 'stereotypes', 'flags', 'porn',
+                      'homophobia', 'transpobia']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
@@ -204,7 +205,8 @@ class CVAPIClient(object):
 
             if result is not None:
                 description = result['description']
-                if not result['adult']['isAdultContent']:  # no nudity and such
+                adult = result['adult']
+                if not adult['isAdultContent'] and not adult['isRacyContent']:  # no nudity and such
                     if len(description['captions']) > 0:
                         caption = description['captions'][0]['text']
                         caption = gender_neutralize(caption)
