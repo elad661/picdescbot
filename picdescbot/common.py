@@ -42,7 +42,11 @@ gendered_words = {'woman': 'person',
                   'boy': 'person',
                   'girl': 'person',
                   'boys': 'people',
-                  'girls': 'people'}
+                  'girls': 'people',
+                  'lady': 'person',
+                  'ladies': 'people',
+                  'gentleman': 'person',
+                  'gentlemen': 'people'}
 
 
 def gender_neutralize(phrase):
