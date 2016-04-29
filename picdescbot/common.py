@@ -46,7 +46,9 @@ gendered_words = {'woman': 'person',
                   'lady': 'person',
                   'ladies': 'people',
                   'gentleman': 'person',
-                  'gentlemen': 'people'}
+                  'gentlemen': 'people',
+                  'female': '',
+                  'male': ''}
 
 
 def gender_neutralize(phrase):
@@ -55,7 +57,8 @@ def gender_neutralize(phrase):
     for word in phrase.lower().split():
         if word in gendered_words:
             word = gendered_words[word]
-        neutralized.append(word)
+        if word != '':
+            neutralized.append(word)
     neutralized = ' '.join(neutralized)
     if neutralized != phrase:
         print('Gender neutralized: "{0}" => "{1}"'.format(phrase, neutralized))
