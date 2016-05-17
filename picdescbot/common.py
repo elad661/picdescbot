@@ -205,7 +205,7 @@ class CVAPIClient(object):
                     time.sleep(1)
             url = pic['url']
             # Use a scaled-down image if the original is too big
-            if pic['size'] > 4000000:
+            if pic['size'] > 3000000:
                 url = pic['thumburl']
 
             result = self.describe_picture(url)
