@@ -48,7 +48,20 @@ gendered_words = {'woman': 'person',
                   'gentleman': 'person',
                   'gentlemen': 'people',
                   'female': '',
-                  'male': ''}
+                  'male': '',
+                  'she': 'they',
+                  # It's probably more likely to say "woman and her phone" than
+                  # "someone gives a phone to her", so their is probably better
+                  # here. Would need more complex parsing to know for sure.
+                  'her': 'their',
+                  'hers': 'theirs',
+                  'herself': 'themself',
+                  'he': 'they',
+                  'him': 'them',
+                  # It's more likely to give "man and his phone" than "this
+                  # phone is his", so "their" is better here than "theirs"
+                  'his': 'their',
+                  'himself': 'themself'}
 
 
 def gender_neutralize(phrase):
