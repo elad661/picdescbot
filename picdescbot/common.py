@@ -23,6 +23,11 @@ word_filter = Wordfilter()
 # I really don't want the bot to show this kind of imagery!
 word_filter.add_words(['nazi', 'hitler'])
 
+# I can't trust Microsoft's algorithm to not be racist, so I should probably
+# make the bot avoid posting images with the following words in them.
+# I'm not using wordfilter here because it would over-filter in some cases.
+extra_filter = {'ape', 'apes', 'monkey', 'monkeys'}
+
 # Blacklist some categories, just in case. These are matched on a substring
 # basis, against the page's categories and the titles of the wikipages using
 # the picture.
@@ -88,10 +93,19 @@ def tag_blacklisted(tags):
     return False
 
 
+def is_blacklisted(caption):
+    """ Check caption for forbidden words"""
+    if word_filter.blacklisted(caption):
+        return True
+    for word in caption.split():
+        if word in extra_filter:
+            return True
+    return False
+
+
 def get_random_picture():
     """Get a random picture from Wikimedia Commons.
     Returns None when the result is bad"""
-
     params = {"action": "query",
               "generator": "random",
               "grnnamespace": "6",
@@ -230,7 +244,7 @@ class CVAPIClient(object):
                     if len(description['captions']) > 0:
                         caption = description['captions'][0]['text']
                         caption = gender_neutralize(caption)
-                        if not word_filter.blacklisted(caption):
+                        if not is_blacklisted(caption):
                             if not tag_blacklisted(description['tags']):
                                 return Result(caption,
                                               description['tags'], url,
