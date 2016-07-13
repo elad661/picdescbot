@@ -272,12 +272,18 @@ class Result(object):
         while retries <= 20:
             if retries > 0:
                 print('Trying again...')
-            response = requests.get(self.url, headers=HEADERS)
-            if response.status_code == 200:
+
+            try:
+                response = requests.get(self.url, headers=HEADERS)
+            except requests.exceptions.RequestException as e:
+                print(e)
+                response = None
+
+            if response is not None and response.status_code == 200:
                 picture = BytesIO(response.content)
                 return picture
             else:
                 print("Fetching picture failed: " + response.status_code)
                 retries += 1
-                time.sleep(1)
+                time.sleep(3)
         raise Exception("Maximum retries exceeded when downloading a picture")
