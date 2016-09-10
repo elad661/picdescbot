@@ -104,16 +104,20 @@ def is_blacklisted(caption):
     return False
 
 
-def get_random_picture():
-    """Get a random picture from Wikimedia Commons.
+def get_picture(filename=None):
+    """Get a picture from Wikimedia Commons. A random picture will be returned if filename is not specified
     Returns None when the result is bad"""
     params = {"action": "query",
-              "generator": "random",
-              "grnnamespace": "6",
               "prop": "imageinfo|categories|globalusage",
               "iiprop": "url|size|extmetadata|mediatype",
               "iiurlheight": "1080",
               "format": "json"}
+    if filename is None:
+        params['generator'] = 'random'
+        params['grnnamespace'] = '6'
+    else:
+        params['titles'] = 'File:%s' % filename
+
     response = requests.get(MEDIAWIKI_API,
                             params=params,
                             headers=HEADERS).json()
@@ -221,13 +225,13 @@ class CVAPIClient(object):
 
         return result
 
-    def get_picture_and_description(self, max_retries=20):
+    def get_picture_and_description(self, filename=None, max_retries=20):
         "Get a picture and a description. Retries until a usable result is produced or max_retries is reached."
         pic = None
         retries = 0
         while retries <= max_retries:  # retry max 20 times, until we get something good
             while pic is None:
-                pic = get_random_picture()
+                pic = get_picture(filename)
                 if pic is None:
                     # We got a bad picture, let's wait a bit to be polite to the API server
                     time.sleep(1)

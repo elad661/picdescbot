@@ -27,6 +27,9 @@ def main():
                         default=None, help='Path to config file')
     parser.add_argument('--manual', action="store_true")
     parser.add_argument('--tumblr-only', action="store_true")
+    parser.add_argument('--disable-tag-blacklist', action="store_true")
+    parser.add_argument('--wikimedia-filename', nargs='?', type=str,
+                        default=None, help='Describe the specified picture from wikimedia, instead of a random one')
     args = parser.parse_args()
     config_file = "config.ini"
     if args.config is not None:
@@ -83,6 +86,10 @@ def main():
 
     # end boring setup stuff
 
+    if args.disable_tag_blacklist:
+        picdescbot.common.tags_blacklist = {}
+        args.manual = True  # less filtering means manual mode is mandatory
+
     cvapi = picdescbot.common.CVAPIClient(apikey)
     if args.tumblr_only and not config.has_section('tumblr'):
         print('tumblr is not configured')
@@ -99,7 +106,7 @@ def main():
 
     post = False
     while not post:
-        result = cvapi.get_picture_and_description()
+        result = cvapi.get_picture_and_description(args.wikimedia_filename)
         if args.manual:
             action = None
             print(result.url)
