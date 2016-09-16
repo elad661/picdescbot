@@ -276,6 +276,18 @@ class CVAPIClient(object):
         raise Exception("Maximum retries exceeded, no good picture")
 
 
+class NonClosingBytesIO(BytesIO):
+    """" Like BytesIO, but doesn't close so easily.
+    To prevent tweepy from closing the picture on error, this class requires
+    to be specifically closed by adding a boolean parameter to the close() method.
+    """
+
+    def close(self, really=False):
+        """ Close the BytesIO object, but only if you're really sure """
+        if really:
+            return super().close()
+
+
 class Result(object):
     "Represents a picture and its description"
     def __init__(self, caption, tags, url, source_url):
@@ -300,7 +312,7 @@ class Result(object):
                 response = None
 
             if response is not None and response.status_code == 200:
-                picture = BytesIO(response.content)
+                picture = NonClosingBytesIO(response.content)
                 return picture
             else:
                 print("Fetching picture failed: " + response.status_code)

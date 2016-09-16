@@ -22,18 +22,22 @@ class Client(object):
         status = None
         filename = picture.url.split('/')[-1]
         data = picture.download_picture()
-        while retries < 3 and not status:
-            if retries > 0:
-                print('retrying...')
-            try:
-                status = self.api.update_with_media(filename=filename,
-                                                    status=picture.caption,
-                                                    file=data)
-            except tweepy.TweepError as e:
-                print("Error when sending tweet: %s" % e)
-                retries += 1
-                if retries >= 3:
-                    raise
-                else:
-                    time.sleep(5)
+        try:
+            while retries < 3 and not status:
+                if retries > 0:
+                    print('retrying...')
+                    data.seek(0)
+                try:
+                    status = self.api.update_with_media(filename=filename,
+                                                        status=picture.caption,
+                                                        file=data)
+                except tweepy.TweepError as e:
+                    print("Error when sending tweet: %s" % e)
+                    retries += 1
+                    if retries >= 3:
+                        raise
+                    else:
+                        time.sleep(5)
+        finally:
+            data.close(really=True)
         return status.id
