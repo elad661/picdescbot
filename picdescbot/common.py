@@ -34,7 +34,8 @@ extra_filter = {'ape', 'apes', 'monkey', 'monkeys'}
 category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
                       'apartheid', 'racism', 'lynching', 'cartoons',
                       'holocaust', 'stereotypes', 'flags', 'porn',
-                      'homophobia', 'transpobia', 'logos']
+                      'homophobia', 'transpobia', 'logos',
+                      'scans from google books']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
