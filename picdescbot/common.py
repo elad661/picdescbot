@@ -110,7 +110,10 @@ def is_blacklisted(caption):
     return False
 
 def remove_html_tags(text):
-    return ''.join(lxml.etree.fromstring(text).itertext())
+    try:
+        return ''.join(lxml.etree.fromstring(text).itertext())
+    except lxml.etree.XMLSyntaxError:
+        return text
 
 def get_picture(filename=None):
     """Get a picture from Wikimedia Commons. A random picture will be returned if filename is not specified
