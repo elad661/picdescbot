@@ -150,16 +150,17 @@ def get_picture(filename=None):
         return None
 
     # Check file description for bad words
-    cleaned_description = remove_html_tags(extra_metadata['ImageDescription']['value'])
-    if word_filter.blacklisted(cleaned_description):
-        print('badword ' + cleaned_description)
-        return None
-
-    for phrase in blacklisted_phrases:
-        if phrase in cleaned_description.lower().strip():
-            print('badword %s found in description "%s"' % (phrase,
-                                                            cleaned_description))
+    if 'ImageDescription' in extra_metadata:
+        cleaned_description = remove_html_tags(extra_metadata['ImageDescription']['value'])
+        if word_filter.blacklisted(cleaned_description):
+            print('badword ' + cleaned_description)
             return None
+
+        for phrase in blacklisted_phrases:
+            if phrase in cleaned_description.lower().strip():
+                print('badword %s found in description "%s"' % (phrase,
+                                                                cleaned_description))
+                return None
 
     # The mediawiki API is awful, there's another list of categories which
     # is not the same as the one requested by asking for "categories".
