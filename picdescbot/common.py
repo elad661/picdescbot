@@ -10,6 +10,7 @@ import json
 import re
 import requests
 import time
+import lxml.etree
 from io import BytesIO
 
 MEDIAWIKI_API = "https://commons.wikimedia.org/w/api.php"
@@ -27,6 +28,10 @@ word_filter.add_words(['nazi', 'hitler'])
 # make the bot avoid posting images with the following words in them.
 # I'm not using wordfilter here because it would over-filter in some cases.
 extra_filter = {'ape', 'apes', 'monkey', 'monkeys'}
+
+# Blacklisted phrases (instead of words) to blacklist certain phrases
+# in the wikimedia description
+blacklisted_phrases = {'comic strip'}
 
 # Blacklist some categories, just in case. These are matched on a substring
 # basis, against the page's categories and the titles of the wikipages using
@@ -104,6 +109,8 @@ def is_blacklisted(caption):
             return True
     return False
 
+def remove_html_tags(text):
+    return ''.join(lxml.etree.fromstring(text).itertext())
 
 def get_picture(filename=None):
     """Get a picture from Wikimedia Commons. A random picture will be returned if filename is not specified
@@ -138,6 +145,18 @@ def get_picture(filename=None):
     if word_filter.blacklisted(extra_metadata['Restrictions']['value']):
         print('badword ' + extra_metadata['ObjectName']['value'])
         return None
+
+    # Check file description for bad words
+    cleaned_description = remove_html_tags(extra_metadata['ImageDescription']['value'])
+    if word_filter.blacklisted(cleaned_description):
+        print('badword ' + cleaned_description)
+        return None
+
+    for phrase in blacklisted_phrases:
+        if phrase in cleaned_description.lower().strip():
+            print('badword %s found in description "%s"' % (phrase,
+                                                            cleaned_description))
+            return None
 
     # The mediawiki API is awful, there's another list of categories which
     # is not the same as the one requested by asking for "categories".
