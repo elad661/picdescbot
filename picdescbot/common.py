@@ -39,7 +39,7 @@ blacklisted_phrases = {'comic strip'}
 category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
                       'apartheid', 'racism', 'lynching', 'cartoons',
                       'holocaust', 'stereotypes', 'flags', 'porn',
-                      'homophobia', 'transpobia', 'logos',
+                      'homophobia', 'transphobia', 'logos',
                       'scans from google books', 'Little Nemo']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
