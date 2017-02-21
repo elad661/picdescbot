@@ -22,7 +22,7 @@ supported_formats = re.compile('\.(png|jpe?g|gif)$', re.I)
 word_filter = Wordfilter()
 
 # I really don't want the bot to show this kind of imagery!
-word_filter.add_words(['nazi', 'hitler'])
+word_filter.add_words(['nazi', 'hitler', 'reich'])
 
 # I can't trust Microsoft's algorithm to not be racist, so I should probably
 # make the bot avoid posting images with the following words in them.
@@ -103,6 +103,8 @@ def tag_blacklisted(tags):
 
 def is_blacklisted(caption):
     """ Check caption for forbidden words"""
+    if caption == "a person wearing a suit and tie":
+        return False
     if word_filter.blacklisted(caption):
         return True
     for word in caption.split():
