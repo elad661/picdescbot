@@ -103,7 +103,7 @@ def tag_blacklisted(tags):
 
 def is_blacklisted(caption):
     """ Check caption for forbidden words"""
-    if caption == "a person wearing a suit and tie":
+    if "a suit and tie" in caption:
         return False
     if word_filter.blacklisted(caption):
         return True
