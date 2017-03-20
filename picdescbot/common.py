@@ -104,7 +104,7 @@ def tag_blacklisted(tags):
 def is_blacklisted(caption):
     """ Check caption for forbidden words"""
     if "a suit and tie" in caption:
-        return False
+        return True
     if word_filter.blacklisted(caption):
         return True
     for word in caption.split():
