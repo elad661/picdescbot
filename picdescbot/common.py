@@ -31,7 +31,7 @@ extra_filter = {'ape', 'apes', 'monkey', 'monkeys'}
 
 # Blacklisted phrases (instead of words) to blacklist certain phrases
 # in the wikimedia description
-blacklisted_phrases = {'comic strip'}
+blacklisted_phrases = {'comic strip', 'logo'}
 
 # Blacklist some categories, just in case. These are matched on a substring
 # basis, against the page's categories and the titles of the wikipages using
