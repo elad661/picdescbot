@@ -1,7 +1,7 @@
 # coding=utf-8
 # picdescbot: a tiny twitter/tumblr bot that tweets random pictures from wikipedia and their descriptions
 # this file contains common basic functionality of the bot, such as getting the picture and description
-# Copyright (C) 2016 Elad Alfassa <elad@fedoraproject.org>
+# Copyright (C) 2016-2017 Elad Alfassa <elad@fedoraproject.org>
 
 from __future__ import unicode_literals, absolute_import, print_function
 
@@ -10,7 +10,7 @@ import json
 import re
 import requests
 import time
-import lxml.etree
+import lxml.html
 from io import BytesIO
 
 MEDIAWIKI_API = "https://commons.wikimedia.org/w/api.php"
@@ -112,11 +112,11 @@ def is_blacklisted(caption):
             return True
     return False
 
+
 def remove_html_tags(text):
-    try:
-        return ''.join(lxml.etree.fromstring(text).itertext())
-    except lxml.etree.XMLSyntaxError:
-        return text
+    """ Remove all HTML tags (and properties) from a string """
+    return ''.join(lxml.html.fromstring(text).itertext())
+
 
 def get_picture(filename=None):
     """Get a picture from Wikimedia Commons. A random picture will be returned if filename is not specified
