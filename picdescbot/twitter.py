@@ -5,6 +5,7 @@
 
 import time
 import tweepy
+from . import logger
 
 
 class Client(object):
@@ -15,6 +16,7 @@ class Client(object):
                                    config['consumer_secret'])
         auth.set_access_token(config['token'], config['token_secret'])
         self.api = tweepy.API(auth)
+        self.log = logger.get(__name__)
 
     def send(self, picture):
         "Send a tweet. `picture` is a `Result` object from `picdescbot.common`"
@@ -25,14 +27,14 @@ class Client(object):
         try:
             while retries < 3 and not status:
                 if retries > 0:
-                    print('retrying...')
+                    self.log.info('retrying...')
                     data.seek(0)
                 try:
                     status = self.api.update_with_media(filename=filename,
                                                         status=picture.caption,
                                                         file=data)
                 except tweepy.TweepError as e:
-                    print("Error when sending tweet: %s" % e)
+                    self.log.error("Error when sending tweet: %s" % e)
                     retries += 1
                     if retries >= 3:
                         raise

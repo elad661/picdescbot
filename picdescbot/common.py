@@ -11,7 +11,10 @@ import re
 import requests
 import time
 import lxml.html
+from . import logger
 from io import BytesIO
+
+log = logger.get("common")
 
 MEDIAWIKI_API = "https://commons.wikimedia.org/w/api.php"
 CVAPI = "https://api.projectoxford.ai/vision/v1.0/analyze"
@@ -87,7 +90,7 @@ def gender_neutralize(phrase):
             neutralized.append(word)
     neutralized = ' '.join(neutralized)
     if neutralized != phrase:
-        print('Gender neutralized: "{0}" => "{1}"'.format(phrase, neutralized))
+        log.info('Gender neutralized: "{0}" => "{1}"'.format(phrase, neutralized))
     return neutralized
 
 
@@ -118,6 +121,13 @@ def remove_html_tags(text):
     return ''.join(lxml.html.fromstring(text).itertext())
 
 
+def log_discarded(url, reason, description=None):
+    line = "Discarded {0} because of {1}".format(url, reason)
+    if description is not None:
+        line += ' - "{0}"'.format(description)
+    log.warning(line)
+
+
 def get_picture(filename=None):
     """Get a picture from Wikimedia Commons. A random picture will be returned if filename is not specified
     Returns None when the result is bad"""
@@ -137,32 +147,32 @@ def get_picture(filename=None):
                             headers=HEADERS).json()
     page = list(response['query']['pages'].values())[0]  # This API is ugly
     imageinfo = page['imageinfo'][0]
+    url = imageinfo['url']
     extra_metadata = imageinfo['extmetadata']
 
     # We got a picture, now let's verify we can use it.
     if word_filter.blacklisted(page['title']):  # Check file name for bad words
-        print('badword ' + page['title'])
+        log_discarded(url, 'badword in page title: "{0}"'.format(page['title']))
         return None
     # Check picture title for bad words
     if word_filter.blacklisted(extra_metadata['ObjectName']['value']):
-        print('badword ' + extra_metadata['ObjectName']['value'])
+        log_discarded(url, 'badword in picture title: "{0}"'.format(extra_metadata['ObjectName']['value']))
         return None
     # Check restrictions for more bad words
     if word_filter.blacklisted(extra_metadata['Restrictions']['value']):
-        print('badword ' + extra_metadata['ObjectName']['value'])
+        log_discarded(url, 'badword in restrictions: "{0}"'.format(extra_metadata['Restrictions']['value']))
         return None
 
     # Check file description for bad words
     if 'ImageDescription' in extra_metadata:
         cleaned_description = remove_html_tags(extra_metadata['ImageDescription']['value'])
         if word_filter.blacklisted(cleaned_description):
-            print('badword ' + cleaned_description)
+            log_discarded(url, 'badword in image description: "{0}"'.format(cleaned_description))
             return None
 
         for phrase in blacklisted_phrases:
             if phrase in cleaned_description.lower().strip():
-                print('badword %s found in description "%s"' % (phrase,
-                                                                cleaned_description))
+                log_discarded(url, 'blacklisted phrase "{0}" found in description "{1}"'.format(phrase, cleaned_description))
                 return None
 
     # The mediawiki API is awful, there's another list of categories which
@@ -174,22 +184,22 @@ def get_picture(filename=None):
     for blacklisted_category in category_blacklist:
         for category in page['categories']:
             if blacklisted_category in category['title'].lower():
-                print('discarded, category blacklist: ' + category['title'])
+                log_discarded(url, 'blacklisted category "{0}"'.format(category['title']))
                 return None
 
         if blacklisted_category in extra_categories:
-            print('discarded, category blacklist: ' + blacklisted_category)
+            log_discarded(url, 'blacklisted category "{0}" (in extra)'.format(blacklisted_category))
             return None
 
     # if the picture is used in any wikipage with unwanted themes, we probably
     # don't want to use it.
     for wikipage in page['globalusage']:
         if word_filter.blacklisted(wikipage['title'].lower()):
-            print('discarded, page usage: ' + wikipage['title'])
+            log_discarded(url, 'page usage "{0}"'.format(wikipage['title']))
             return None
         for blacklisted_category in category_blacklist:
             if blacklisted_category in wikipage['title']:  # substring matching
-                print('discarded, page usage: ' + wikipage['title'])
+                log_discarded(url, 'page usage "{0}"'.format(wikipage['title']))
                 return None
 
     # Now check that the file is useable
@@ -200,7 +210,7 @@ def get_picture(filename=None):
     if imageinfo['width'] <= 50 or imageinfo['height'] <= 50:
         return None
 
-    if not supported_formats.search(imageinfo['url']):
+    if not supported_formats.search(url):
         return None
     else:
         return imageinfo
@@ -225,12 +235,12 @@ class CVAPIClient(object):
             response = requests.post(CVAPI, json=json, params=params,
                                      headers=headers)
             if response.status_code == 429:
-                print ("Message: %s" % (response.json()))
+                log.error("Error from mscognitive: %s" % (response.json()))
                 if retries < 15:
                     time.sleep(2)
                     retries += 1
                 else:
-                    print('Error: failed after retrying!')
+                    log.error('failed after retrying!')
 
             elif response.status_code == 200 or response.status_code == 201:
 
@@ -242,12 +252,12 @@ class CVAPIClient(object):
                     elif 'image' in response.headers['content-type'].lower():
                         result = response.content
             else:
-                print("Error code: %d" % (response.status_code))
-                print("url: %s" % url)
-                print(response.json())
+                log.error("Error code: %d" % (response.status_code))
+                log.error("url: %s" % url)
+                log.error(response.json())
                 retries += 1
                 sleep = 20 + retries*4
-                print("attempt: {0}, sleeping for {1}".format(retries, sleep))
+                log.info("attempt: {0}, sleeping for {1}".format(retries, sleep))
                 time.sleep(sleep)
 
         return result
@@ -282,20 +292,16 @@ class CVAPIClient(object):
                                               description['tags'], url,
                                               pic['descriptionshorturl'])
                             else:
-                                print("discarded: tag blacklist: %s (%s)" %
-                                      (url, caption))
-                                print('tags: %s' % description['tags'])
+                                log_discarded(url, "tag blacklist", caption)
+                                log.warning('tags: %s' % description['tags'])
                         else:
-                            print("caption discarded due to blacklist: " +
-                                  caption)
+                            log_discarded(url, "caption blacklist", caption)
                     else:
-                        print("No caption for url: {0}".format(url))
+                        log.warning("No caption for url: {0}".format(url))
                 else:
-                    print("Adult content. Discarded.")
-                    print(url)
-                    print(description)
+                    log_discarded(url, "adult content", caption)
             retries += 1
-            print("Not good, retrying...")
+            log.warning("Not good, retrying...")
             pic = None
             time.sleep(3)  # sleep to be polite to the API servers
 
@@ -326,22 +332,23 @@ class Result(object):
         "Returns a BytesIO object for an image URL"
         retries = 0
         picture = None
-        print("downloading " + self.url)
+        log.info("downloading " + self.url)
         while retries <= 20:
             if retries > 0:
-                print('Trying again...')
+                log.info('Trying again...')
 
             try:
                 response = requests.get(self.url, headers=HEADERS)
             except requests.exceptions.RequestException as e:
-                print(e)
+                log.error(e)
                 response = None
 
             if response is not None and response.status_code == 200:
                 picture = NonClosingBytesIO(response.content)
                 return picture
             else:
-                print("Fetching picture failed: " + response.status_code)
+                log.error("Fetching picture failed: " + response.status_code)
                 retries += 1
                 time.sleep(3)
+        log.error("Maximum retries exceeded when downloading a picture")
         raise Exception("Maximum retries exceeded when downloading a picture")

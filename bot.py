@@ -9,6 +9,7 @@ import argparse
 import configparser
 import os.path
 import picdescbot.common
+import picdescbot.logger
 import picdescbot.tumblr
 import picdescbot.twitter
 import sys
@@ -97,6 +98,8 @@ def main():
         print("consumer_key, consumer_secret, token, token_secret, blog_id")
         return
 
+    log = picdescbot.logger.get('main')
+
     providers = []
     if config.has_section('tumblr'):
         providers.append(picdescbot.tumblr.Client(config['tumblr']))
@@ -120,8 +123,8 @@ def main():
 
     for provider in providers:
         status_id = provider.send(result)
-        print("Sent {0}: {1} ({2})".format(provider.name, status_id,
-                                           result.caption))
+        log.info("Sent {0}: {1} ({2})".format(provider.name, status_id,
+                                              result.caption))
 
 if __name__ == "__main__":
     main()

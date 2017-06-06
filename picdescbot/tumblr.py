@@ -7,6 +7,7 @@ from tumblpy import Tumblpy
 import tumblpy.exceptions
 import time
 from . import common
+from . import logger
 
 DEFAULT_PARAMS = {'type': 'photo', 'state': 'queue',
                   'native_inline_images': True}
@@ -38,6 +39,7 @@ class Client(object):
         self.client = Tumblpy(config['consumer_key'], config['consumer_secret'],
                               config['token'], config['token_secret'])
         self.blog_id = config['blog_id']
+        self.log = logger.get(__name__)
 
     def send(self, picture):
         "Post a post. `picture` is a `Result` object from `picdescbot.common`"
@@ -56,12 +58,12 @@ class Client(object):
         post = None
         while retries < 3 and post is None:
             if retries > 0:
-                print('retrying...')
+                self.log.info('retrying...')
             try:
                 post = self.client.post("post", blog_url=self.blog_id,
                                         params=params)
             except tumblpy.exceptions.TumblpyError as e:
-                print("Error when sending tumblr post: %s" % e)
+                self.log.error("Error when sending tumblr post: %s" % e)
                 retries += 1
                 if retries >= 3:
                     raise
