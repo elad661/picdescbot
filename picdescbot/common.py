@@ -118,7 +118,7 @@ def is_blacklisted(caption):
 
 def remove_html_tags(text):
     """ Remove all HTML tags (and properties) from a string """
-    return ''.join(lxml.html.fromstring(text).itertext())
+    return ' '.join(lxml.html.fromstring(text).itertext())
 
 
 def log_discarded(url, reason, description=None):
@@ -149,6 +149,18 @@ def get_picture(filename=None):
     imageinfo = page['imageinfo'][0]
     url = imageinfo['url']
     extra_metadata = imageinfo['extmetadata']
+
+    # check that the file is actually a picture
+    if imageinfo['mediatype'] != "BITMAP":
+        return None
+
+    # Make sure the picture is big enough
+    if imageinfo['width'] <= 50 or imageinfo['height'] <= 50:
+        return None
+
+    # Make sure the format is supported
+    if not supported_formats.search(url):
+        return None
 
     # We got a picture, now let's verify we can use it.
     if word_filter.blacklisted(page['title']):  # Check file name for bad words
@@ -201,19 +213,7 @@ def get_picture(filename=None):
             if blacklisted_category in wikipage['title']:  # substring matching
                 log_discarded(url, 'page usage "{0}"'.format(wikipage['title']))
                 return None
-
-    # Now check that the file is useable
-    if imageinfo['mediatype'] != "BITMAP":
-        return None
-
-    # Make sure the image is big enough
-    if imageinfo['width'] <= 50 or imageinfo['height'] <= 50:
-        return None
-
-    if not supported_formats.search(url):
-        return None
-    else:
-        return imageinfo
+    return imageinfo
 
 
 class CVAPIClient(object):
@@ -243,18 +243,14 @@ class CVAPIClient(object):
                     log.error('failed after retrying!')
 
             elif response.status_code == 200 or response.status_code == 201:
-
-                if 'content-length' in response.headers and int(response.headers['content-length']) == 0:
-                    result = None
-                elif 'content-type' in response.headers and isinstance(response.headers['content-type'], str):
-                    if 'application/json' in response.headers['content-type'].lower():
-                        result = response.json() if response.content else None
-                    elif 'image' in response.headers['content-type'].lower():
-                        result = response.content
+                result = response.json() if response.content else None
             else:
                 log.error("Error code: %d" % (response.status_code))
                 log.error("url: %s" % url)
-                log.error(response.json())
+                try:
+                    log.error(response.json())
+                except:
+                    log.error(response.text)
                 retries += 1
                 sleep = 20 + retries*4
                 log.info("attempt: {0}, sleeping for {1}".format(retries, sleep))
@@ -340,7 +336,7 @@ class Result(object):
             try:
                 response = requests.get(self.url, headers=HEADERS)
             except requests.exceptions.RequestException as e:
-                log.error(e)
+                log.exception(e)
                 response = None
 
             if response is not None and response.status_code == 200:
