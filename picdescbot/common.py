@@ -295,7 +295,7 @@ class CVAPIClient(object):
                     else:
                         log.warning("No caption for url: {0}".format(url))
                 else:
-                    log_discarded(url, "adult content", caption)
+                    log_discarded(url, "adult content", description['captions'])
             retries += 1
             log.warning("Not good, retrying...")
             pic = None
