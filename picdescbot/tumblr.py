@@ -12,11 +12,18 @@ from . import logger
 DEFAULT_PARAMS = {'type': 'photo', 'state': 'queue',
                   'native_inline_images': True}
 
+# using the goo.gl link in the template instead of the actual link, because
+# tumblr on mobile doesn't show pages when linked with the actual link -
+# it just sends the user to the blog's front page instead.
+# The goo.gl redirect makes the tumblr app think it's an external website,
+# and open it in the browser instead.
+
 TEMPLATE = "<h2><b>{description}</b></h2>" + \
-           "<p><a href=\"https://picdescbot.tumblr.com/about\">" + \
+           "<p><a href=\"https://picdescbot.tumblr.com\">@picdescbot</a>" + \
+           "&nbsp;|&nbsp;<a href=\"https://goo.gl/qLvF4K\">" + \
            "about this bot</a>&nbsp;|&nbsp;" + \
            "<a href=\"{source}\">picture source</a></p>" + \
-           "<p><i>the text in this post is 100% computer-generated, including tags</i></p>"
+           "<p><i>all text in this post is 100% computer-generated, including tags</i></p>"
 DEFAULT_TAGS = ['picdescbot', 'bot']
 
 # All kinds of tags that should be filtered from the bot's post
