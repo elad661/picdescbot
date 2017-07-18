@@ -45,7 +45,9 @@ category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
                       'homophobia', 'transphobia', 'logos',
                       'scans from google books', 'little nemo',
                       'stolperstein', 'songbird specimens', 'terror',
-                      'bible illustrations']
+                      'bible illustrations', 'jesuit symbols',
+                      'christian symbols', 'symbols of religion',
+                      'symbols of islam', 'jewish symbols']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
@@ -203,6 +205,10 @@ def get_picture(filename=None):
         if blacklisted_category in extra_categories:
             log_discarded(url, 'blacklisted category "{0}" (in extra)'.format(blacklisted_category))
             return None
+
+    # TODO check parent categories for each category in metadata,
+    # and compare them against the blacklist too. This will require
+    # extra API calls
 
     # if the picture is used in any wikipage with unwanted themes, we probably
     # don't want to use it.
