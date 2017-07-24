@@ -30,7 +30,8 @@ word_filter.add_words(['nazi', 'hitler', 'reich'])
 # I can't trust Microsoft's algorithm to not be racist, so I should probably
 # make the bot avoid posting images with the following words in them.
 # I'm not using wordfilter here because it would over-filter in some cases.
-extra_filter = {'ape', 'apes', 'monkey', 'monkeys'}
+# also filter "gun" because this is not the kind of content I want the bot to post
+extra_filter = {'ape', 'apes', 'monkey', 'monkeys', 'gun'}
 
 # Blacklisted phrases (instead of words) to blacklist certain phrases
 # in the wikimedia description
@@ -47,7 +48,7 @@ category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
                       'stolperstein', 'songbird specimens', 'terror',
                       'bible illustrations', 'jesuit symbols',
                       'christian symbols', 'symbols of religion',
-                      'symbols of islam', 'jewish symbols']
+                      'symbols of islam', 'jewish symbols', 'pistols']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
