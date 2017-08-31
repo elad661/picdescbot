@@ -75,15 +75,19 @@ def main():
                 config.write(f)
 
     if (not config.has_section('mscognitive') or not
-            config.has_option('mscognitive', 'api_key')):
+            config.has_option('mscognitive', 'api_key') or not
+            config.has_option('mscognitive', 'endpoint')):
         apikey = input("Please enter your Microsoft Computer Vision API Key:")
         if not config.has_section('mscognitive'):
             config.add_section('mscognitive')
         config.set('mscognitive', 'api_key', apikey)
+        endpoint = input("Please provide the endpoint for the Computer Vision API:")
+        config.set('mscognitive', 'endpoint', endpoint)
         with open(config_file, 'w') as f:
             config.write(f)
     else:
         apikey = config['mscognitive']['api_key']
+        endpoint = config['mscognitive']['endpoint']
 
     # end boring setup stuff
 
@@ -91,7 +95,7 @@ def main():
         picdescbot.common.tags_blacklist = {}
         args.manual = True  # less filtering means manual mode is mandatory
 
-    cvapi = picdescbot.common.CVAPIClient(apikey)
+    cvapi = picdescbot.common.CVAPIClient(apikey, endpoint)
     if args.tumblr_only and not config.has_section('tumblr'):
         print('tumblr is not configured')
         print("You'll neeed the following fields: ")

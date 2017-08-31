@@ -17,7 +17,6 @@ from io import BytesIO
 log = logger.get("common")
 
 MEDIAWIKI_API = "https://commons.wikimedia.org/w/api.php"
-CVAPI = "https://api.projectoxford.ai/vision/v1.0/analyze"
 
 HEADERS = {"User-Agent":  "picdescbot, http://github.com/elad661/picdescbot"}
 
@@ -226,8 +225,9 @@ def get_picture(filename=None):
 
 class CVAPIClient(object):
     "Microsoft Cognitive Services Client"
-    def __init__(self, apikey):
+    def __init__(self, apikey, endpoint):
         self.apikey = apikey
+        self.endpoint = endpoint + '/analyze'
 
     def describe_picture(self, url):
         "Get description for a picture using Microsoft Cognitive Services"
@@ -240,7 +240,7 @@ class CVAPIClient(object):
         retries = 0
 
         while retries < 15 and not result:
-            response = requests.post(CVAPI, json=json, params=params,
+            response = requests.post(self.endpoint, json=json, params=params,
                                      headers=headers)
             if response.status_code == 429:
                 log.error("Error from mscognitive: %s" % (response.json()))
