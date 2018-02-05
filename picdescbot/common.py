@@ -47,7 +47,8 @@ category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
                       'stolperstein', 'songbird specimens', 'terror',
                       'bible illustrations', 'jesuit symbols',
                       'christian symbols', 'symbols of religion',
-                      'symbols of islam', 'jewish symbols', 'pistols']
+                      'symbols of islam', 'jewish symbols', 'pistols',
+                      'corpse', 'victim']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
