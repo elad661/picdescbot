@@ -43,7 +43,7 @@ blacklisted_phrases = {'comic strip', 'logo', 'biblical illustration', 'church',
 # the picture.
 category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
                       'apartheid', 'racism', 'lynching', 'cartoons',
-                      'holocaust', 'stereotypes', 'flags', 'porn',
+                      'holocaust', 'auschwitz', 'stereotypes', 'flags', 'porn',
                       'homophobia', 'transphobia', 'logos',
                       'scans from google books', 'little nemo',
                       'stolperstein', 'songbird specimens', 'terror',
