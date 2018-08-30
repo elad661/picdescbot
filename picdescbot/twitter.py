@@ -30,8 +30,9 @@ class Client(object):
                     self.log.info('retrying...')
                     data.seek(0)
                 try:
+                    text = f"{picture.caption}\n\n{picture.source_url}"
                     status = self.api.update_with_media(filename=filename,
-                                                        status=picture.caption,
+                                                        status=text,
                                                         file=data)
                 except tweepy.TweepError as e:
                     self.log.error("Error when sending tweet: %s" % e)
