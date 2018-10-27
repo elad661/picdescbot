@@ -36,7 +36,7 @@ extra_filter = {'ape', 'apes', 'monkey', 'monkeys', 'gun'}
 # Blacklisted phrases (instead of words) to blacklist certain phrases
 # in the wikimedia description
 blacklisted_phrases = {'comic strip', 'logo', 'biblical illustration', 'church',
-                       'historical document'}
+                       'historical document', 'donald trump'}
 
 # Blacklist some categories, just in case. These are matched on a substring
 # basis, against the page's categories and the titles of the wikipages using
@@ -50,7 +50,7 @@ category_blacklist = ['september 11', 'hitler', 'nazi', 'antisemit', 'libel',
                       'bible illustrations', 'jesuit symbols',
                       'christian symbols', 'symbols of religion',
                       'symbols of islam', 'jewish symbols', 'pistols',
-                      'corpse', 'victim', 'ultrasound']
+                      'corpse', 'victim', 'ultrasound', 'donald trump']
 
 # Gender neutralization helps prevent accidental transphobic juxtapositions
 # which can occur when CVAPI uses gendered words in the description, but their
