@@ -9,5 +9,6 @@ Made by Elad Alfassa.
 Dependencies
 ============
 * tweepy
+* Mastodon.py
 * wordfilter
 * requests
