@@ -12,8 +12,15 @@ import picdescbot.common
 import picdescbot.logger
 import picdescbot.tumblr
 import picdescbot.twitter
+import picdescbot.mastodon
 import sys
 import tweepy
+
+PROVIDERS = {
+    'tumblr',
+    'twitter',
+    'mastodon',
+}
 
 
 def main():
@@ -27,7 +34,7 @@ def main():
     parser.add_argument('config', metavar='config', nargs='?', type=str,
                         default=None, help='Path to config file')
     parser.add_argument('--manual', action="store_true")
-    parser.add_argument('--tumblr-only', action="store_true")
+    parser.add_argument('--only', action="store")
     parser.add_argument('--disable-tag-blacklist', action="store_true")
     parser.add_argument('--wikimedia-filename', nargs='?', type=str,
                         default=None, help='Describe the specified picture from wikimedia, instead of a random one')
@@ -36,10 +43,12 @@ def main():
     if args.config is not None:
         config_file = os.path.expanduser(args.config)
 
+    enabled = PROVIDERS if not args.only else {args.only}
+
     config = configparser.ConfigParser()
     config.read(config_file)
 
-    if not args.tumblr_only:
+    if 'twitter' in enabled:
         if (not config.has_section('twitter') or not
                 config.has_option('twitter', 'consumer_key') or not
                 config.has_option('twitter', 'consumer_secret')):
@@ -96,7 +105,7 @@ def main():
         args.manual = True  # less filtering means manual mode is mandatory
 
     cvapi = picdescbot.common.CVAPIClient(apikey, endpoint)
-    if args.tumblr_only and not config.has_section('tumblr'):
+    if 'tumblr' in enabled and not config.has_section('tumblr'):
         print('tumblr is not configured')
         print("You'll neeed the following fields: ")
         print("consumer_key, consumer_secret, token, token_secret, blog_id")
@@ -105,11 +114,15 @@ def main():
     log = picdescbot.logger.get('main')
 
     providers = []
+    """
     if config.has_section('tumblr'):
         providers.append(picdescbot.tumblr.Client(config['tumblr']))
 
-    if not args.tumblr_only:
+    if config.has_section('twitter'):
         providers.append(picdescbot.twitter.Client(config['twitter']))
+    """
+    if config.has_section('mastodon'):
+        providers.append(picdescbot.mastodon.Client(config['mastodon']))
 
     post = False
     while not post:

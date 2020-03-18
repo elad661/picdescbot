@@ -1,4 +1,6 @@
+lxml
 tweepy
 requests
 wordfilter
 python-tumblpy
+Mastodon.py
